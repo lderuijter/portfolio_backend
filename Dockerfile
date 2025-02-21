@@ -1,28 +1,30 @@
-# Use an official PHP runtime as the base image
-FROM php:8.4.4-fpm-alpine
+# Use PHP with Apache
+FROM php:8.4.4-apache
 
 # Install system dependencies and PHP extensions
-RUN apk update && apk add --no-cache \
-    libpng-dev libjpeg-turbo-dev freetype-dev \
-    libzip-dev unzip git \
+RUN apt-get update && apt-get install -y \
+    libpng-dev libjpeg-dev freetype-dev \
+    libzip-dev unzip git sqlite3 libsqlite3-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install gd zip pdo pdo_sqlite
 
-# Install Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+# Enable Apache mod_rewrite for Laravel
+RUN a2enmod rewrite
 
-# Set the working directory in the container
+# Set the working directory
 WORKDIR /var/www
 
-# Copy the composer.json and install dependencies
-COPY composer.json composer.lock ./
-RUN composer install --no-dev --optimize-autoloader
-
-# Copy the rest of the application code
+# Copy Laravel files
 COPY . .
 
-# Expose port 9000 for the PHP-FPM server
-EXPOSE 9000
+# Set proper permissions
+RUN chown -R www-data:www-data /var/www
 
-# Start PHP-FPM
-CMD ["php-fpm"]
+# Set Laravel's public folder as Apache DocumentRoot
+RUN sed -i 's|/var/www/html|/var/www/public|g' /etc/apache2/sites-available/000-default.conf
+
+# Expose Apache's default port
+EXPOSE 80
+
+# Start Apache
+CMD ["apache2-foreground"]
