@@ -10,7 +10,7 @@ services:
             - .:/var/www
         environment:
             - DB_CONNECTION=sqlite
-            - DB_DATABASE=/var/www/database/backend.sqlite
+            - DB_DATABASE=/var/www/backend.sqlite
         networks:
             - app-network
 

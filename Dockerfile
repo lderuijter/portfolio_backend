@@ -12,20 +12,17 @@ RUN a2enmod rewrite
 # Set working directory
 WORKDIR /var/www
 
-# Copy Composer files first (to leverage Docker caching)
-COPY composer.json composer.lock ./
-
-# Install Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-
-# Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader
-
-# Copy the rest of the Laravel project files
+# Copy the entire Laravel project first
 COPY . .
 
 # Set proper permissions
 RUN chown -R www-data:www-data /var/www
+
+# Install Composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+# Run Composer install (as www-data to avoid root issues)
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress
 
 # Set Laravel's public folder as Apache DocumentRoot
 RUN sed -i 's|/var/www/html|/var/www/public|g' /etc/apache2/sites-available/000-default.conf
