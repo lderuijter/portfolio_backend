@@ -1,17 +1,15 @@
 # Use PHP with Apache
-FROM php:8.4.4-apache
+FROM php:8.4-apache
 
-# Install system dependencies and PHP extensions
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
-    libpng-dev libjpeg-dev freetype-dev \
-    libzip-dev unzip git sqlite3 libsqlite3-dev \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd zip pdo pdo_sqlite
+    libzip-dev unzip git sqlite3 libsqlite3-dev libonig-dev \
+    && docker-php-ext-install zip pdo pdo_sqlite
 
 # Enable Apache mod_rewrite for Laravel
 RUN a2enmod rewrite
 
-# Set the working directory
+# Set working directory
 WORKDIR /var/www
 
 # Copy Laravel files
