@@ -15,6 +15,9 @@ WORKDIR /var/www
 # Copy the entire Laravel project first
 COPY . .
 
+# Copy the example file to setup the environment
+COPY .env.example .env
+
 # Set proper permissions
 RUN chown -R www-data:www-data /var/www
 
