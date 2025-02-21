@@ -15,11 +15,16 @@ WORKDIR /var/www
 # Copy the entire Laravel project first
 COPY . .
 
-# Copy the example file to setup the environment
-COPY .env.example .env
+# Copy the example environment file if .env does not exist
+RUN cp -n .env.example .env
 
 # Set proper permissions
 RUN chown -R www-data:www-data /var/www
+RUN chmod -R 755 /var/www/storage /var/www/bootstrap/cache
+RUN chmod 644 /var/www/.env
+
+# Ensure SQLite database exists
+RUN touch /var/www/backend.sqlite && chmod 664 /var/www/backend.sqlite
 
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
@@ -33,5 +38,5 @@ RUN sed -i 's|/var/www/html|/var/www/public|g' /etc/apache2/sites-available/000-
 # Expose Apache's default port
 EXPOSE 80
 
-# Start Apache
-CMD ["apache2-foreground"]
+# Run database schema update before starting Apache
+CMD php artisan d:s:u --force && apache2-foreground
