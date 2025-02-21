@@ -4,7 +4,6 @@ namespace App\Repositories;
 
 use App\Entities\Project;
 use Doctrine\ORM\EntityManagerInterface;
-use Illuminate\Http\JsonResponse;
 
 readonly class ProjectRepository implements ProjectRepositoryInterface
 {
