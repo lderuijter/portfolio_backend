@@ -3,7 +3,7 @@ FROM php:8.4-apache
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
-    libzip-dev unzip git sqlite3 libsqlite3-dev libonig-dev \
+    libzip-dev unzip git sqlite3 libsqlite3-dev libonig-dev curl \
     && docker-php-ext-install zip pdo pdo_sqlite
 
 # Enable Apache mod_rewrite for Laravel
@@ -12,7 +12,16 @@ RUN a2enmod rewrite
 # Set working directory
 WORKDIR /var/www
 
-# Copy Laravel files
+# Copy Composer files first (to leverage Docker caching)
+COPY composer.json composer.lock ./
+
+# Install Composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+# Install PHP dependencies
+RUN composer install --no-dev --optimize-autoloader
+
+# Copy the rest of the Laravel project files
 COPY . .
 
 # Set proper permissions
