@@ -3,7 +3,7 @@ FROM php:8.4.4-fpm-alpine
 
 # Install system dependencies and PHP extensions
 RUN apk update && apk add --no-cache \
-    libpng-dev libjpeg-turbo-dev libfreetype-dev \
+    libpng-dev libjpeg-turbo-dev freetype-dev \
     libzip-dev unzip git \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install gd zip pdo pdo_sqlite
